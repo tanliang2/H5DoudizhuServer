@@ -3,6 +3,8 @@ import botmanager from './botmanager';
 import gameLogic from "./../logic/gametasklogic";
 var structData = require("./../config/structdata");
 var eventDispatcher = require("./../controller/eventdispatcher");
+require("babel-polyfill");
+
 //定时器 ID
 var IDT_USER_CUT = 1									//断线定时器 ID
 var TIME_SEND_CARD = 30				//发牌定时器
@@ -56,7 +58,7 @@ export default class extends think.base {
         this.m_GameMutiple = new structData.GameMutipleStruct();                      ///游戏中的倍数
         this.m_iBaseMult = 1;					   //游戏倍数
         this.m_iAddDoubleLimit = 0;                  ///加倍限制
-        this.m_iGameMaxLimit = 0;                  ///房间最大输赢 
+        this.m_iGameMaxLimit = 0;                  ///房间最大输赢
         this.m_iLimitPoint = 0;                   //游戏最大倍数
         this.m_iLimitPlayGame = 99;					   //至少打完多少局
         this.m_iBeenPlayGame = 0;					 	//已经游戏的局数
@@ -113,7 +115,7 @@ export default class extends think.base {
         this.m_bGameStation = structData.GS_WAIT_ARGEE;                //游戏状态
         this.m_iCurrentRobPeople = 255;                  ///当前叫地主的人
         this.m_iRobStation = [];            ///玩家抢地主状态(0-未操作 255-不叫地主 其他-叫地主)
-        this.m_iAddStation = [];            ///玩家加倍状态                     
+        this.m_iAddStation = [];            ///玩家加倍状态
         //斷線玩家
         this.m_iFirstCutPeople = 255;						//第一個掉線玩家
         this.m_icountleave = 0;                           //点离开人数统计
@@ -547,7 +549,7 @@ export default class extends think.base {
         TGameBegin.iPlayLimit = this.m_iLimitPlayGame;
         TGameBegin.iCardShape = this.m_iCardShape;
         TGameBegin.byUserMingBase = [].concat(this.m_GameMutiple.sMingPaiMutiple.slice(0, 3));
-        //memcpy(TGameBegin.byUserMingBase , this.m_GameMutiple.sMingPaiMutiple , sizeof(TGameBegin.byUserMingBase)) ; 
+        //memcpy(TGameBegin.byUserMingBase , this.m_GameMutiple.sMingPaiMutiple , sizeof(TGameBegin.byUserMingBase)) ;
 
         for (var k in this.userList) {
             this.userList[k].gameBegin(TGameBegin);
@@ -648,7 +650,7 @@ export default class extends think.base {
         this.m_bFirstCallScore = rand()%structData.PLAY_COUNT;
         }
         SendCallScore(this.m_bFirstCallScore);*/
-        ///不要叫分流程 ,直接开始抢地主和叫地主流程 
+        ///不要叫分流程 ,直接开始抢地主和叫地主流程
 
         this.m_bGameStation = structData.GS_WAIT_BACK;
 
@@ -666,7 +668,7 @@ export default class extends think.base {
     }
     //发送抢地主消息
     SendRobNT(bDeskStation) {
-        this.m_iGameFlag = structData.GS_FLAG_ROB_NT;				//抢地主																
+        this.m_iGameFlag = structData.GS_FLAG_ROB_NT;				//抢地主
         //抢地主情况
         var TRobNT = new structData.RobNTStruct();
         TRobNT.byDeskStation = bDeskStation;
@@ -674,7 +676,7 @@ export default class extends think.base {
 
         for (var i = 0; i < structData.PLAY_COUNT; i++) {
             this.userList[i + 1].socket.emit("sendRobNt", TRobNT);
-            //SendGameData(i,&TRobNT,sizeof(TRobNT),MDM_GM_GAME_NOTIFY,ASS_ROB_NT,0);		
+            //SendGameData(i,&TRobNT,sizeof(TRobNT),MDM_GM_GAME_NOTIFY,ASS_ROB_NT,0);
         }
         //SendWatchData(this.m_bMaxPeople,&TRobNT,sizeof(TRobNT),MDM_GM_GAME_NOTIFY,ASS_ROB_NT,0);
         var that = this;
@@ -859,7 +861,7 @@ export default class extends think.base {
     }
     //发送加棒消息
     SendAddDouble() {
-        this.m_iGameFlag = structData.GS_FLAG_ADD_DOUBLE;				//加棒																
+        this.m_iGameFlag = structData.GS_FLAG_ADD_DOUBLE;				//加棒
         this.m_iRecvMsg = 0;
         //抢地主情况
         var adddouble = new structData.AddDoubleStruct();
@@ -915,7 +917,7 @@ export default class extends think.base {
     }
     //亮牌
     SendShowCard() {
-        this.m_iGameFlag = structData.GS_FLAG_SHOW_CARD;				//亮牌																
+        this.m_iGameFlag = structData.GS_FLAG_SHOW_CARD;				//亮牌
         var show = new structData.ShowCardStruct();
         show.bDeskStation = this.m_iUpGradePeople;
         for (var i = 0; i < structData.PLAY_COUNT; i++) {
@@ -962,7 +964,7 @@ export default class extends think.base {
 
         showresult.iCardCount = this.m_iUserCardCount[bDeskStation];
         showresult.iCardList = this.m_iUserCard[bDeskStation];//[].concat(this.m_iUserCard[bDeskStation].slice(0, this.m_iUserCardCount[bDeskStation]));
-        //memcpy(showresult.iCardList , this.m_iUserCard[bDeskStation] , sizeof(BYTE) *this.m_iUserCardCount[bDeskStation]) ; 
+        //memcpy(showresult.iCardList , this.m_iUserCard[bDeskStation] , sizeof(BYTE) *this.m_iUserCardCount[bDeskStation]) ;
         showresult.gameMutiple = this.m_GameMutiple.GetPublicMutiple();
 
         for (var i = 0; i < structData.PLAY_COUNT; i++) {
@@ -1239,7 +1241,7 @@ export default class extends think.base {
             case GF_NORMAL:		//游戏正常结束
                 {
                     this.panNum++;
-                    //设置数据 
+                    //设置数据
                     this.m_bGameStation = structData.GS_WAIT_ARGEE;
                     for (var i = 0; i < structData.PLAY_COUNT; i++) {
                         if (this.userList[i + 1] != null)
@@ -1323,7 +1325,7 @@ export default class extends think.base {
                         if (iLimitMoney < Math.abs(GameEnd.iTurePoint[this.m_iUpGradePeople]) && 0 != GameEnd.iTurePoint[this.m_iUpGradePeople]) {
                             var fPercent = Math.abs(iLimitMoney / Number(GameEnd.iTurePoint[this.m_iUpGradePeople]));
                             //GameEnd.iTurePoint[this.m_iUpGradePeople] *= fPercent ;
-                            //GameEnd.iTurePoint[(this.m_iUpGradePeople + 2)%structData.PLAY_COUNT] = - GameEnd.iTurePoint[this.m_iUpGradePeople] - GameEnd.iTurePoint[(this.m_iUpGradePeople + 1)%structData.PLAY_COUNT] ; 
+                            //GameEnd.iTurePoint[(this.m_iUpGradePeople + 2)%structData.PLAY_COUNT] = - GameEnd.iTurePoint[this.m_iUpGradePeople] - GameEnd.iTurePoint[(this.m_iUpGradePeople + 1)%structData.PLAY_COUNT] ;
                             GameEnd.iTurePoint[(this.m_iUpGradePeople + 1) % structData.PLAY_COUNT] *= fPercent;
                             GameEnd.iTurePoint[(this.m_iUpGradePeople + 2) % structData.PLAY_COUNT] *= fPercent;
                         }
@@ -1336,7 +1338,7 @@ export default class extends think.base {
                                 GameEnd.iTurePoint[i] = this.userList[i + 1].user.currency * (iTurePoint > 0 ? -1 : 1);
                             }
                         }
-                        //GameEnd.iTurePoint[this.m_iUpGradePeople] = -GameEnd.iTurePoint[(this.m_iUpGradePeople + 1)%structData.PLAY_COUNT] -GameEnd.iTurePoint[(this.m_iUpGradePeople + 2)%structData.PLAY_COUNT] ; 
+                        //GameEnd.iTurePoint[this.m_iUpGradePeople] = -GameEnd.iTurePoint[(this.m_iUpGradePeople + 1)%structData.PLAY_COUNT] -GameEnd.iTurePoint[(this.m_iUpGradePeople + 2)%structData.PLAY_COUNT] ;
                         ///统计大小时算上游戏中的倍数
                         // for (var i = 0; i < structData.PLAY_COUNT; i++) {
                         //     if (i == this.m_iUpGradePeople) {
@@ -1407,7 +1409,7 @@ export default class extends think.base {
                             this.userList[i + 1].socket.emit("continueEnd", GameEnd);
                         //SendGameData(i,&GameEnd,sizeof(GameEnd),MDM_GM_GAME_NOTIFY,ASS_CONTINUE_END,0);
                         //SendWatchData(this.m_bMaxPeople,&GameEnd,sizeof(GameEnd),MDM_GM_GAME_NOTIFY,ASS_CONTINUE_END,0);
-                        //设置数据 
+                        //设置数据
                         this.m_bGameStation = structData.GS_WAIT_NEXT;
                     }
                     this.ReSetGameState(bCloseFlag);
@@ -1415,7 +1417,7 @@ export default class extends think.base {
                 }
             case GF_NO_CALL_SCORE:
                 {
-                    //设置数据 
+                    //设置数据
                     this.m_bGameStation = structData.GS_WAIT_ARGEE;
 
                     var bhavecut = false;
@@ -1499,7 +1501,7 @@ export default class extends think.base {
             //     }
             case GF_AHEAD_END://提前结束
                 {
-                    //设置数据 
+                    //设置数据
                     this.m_bGameStation = structData.GS_WAIT_ARGEE;
 
                     for (var i = 0; i < structData.PLAY_COUNT; i++) {
@@ -1967,7 +1969,7 @@ export default class extends think.base {
                     GameStation.iBaseCardList = this.m_iDeskCard[this.m_iNowBigPeople];
                     GameStation.iDeskCardCount = this.m_iDeskCardCount;
                     GameStation.iDeskCardList = this.m_iDeskCard;
-                    // ::CopyMemory(&GameStation.iBaseCardList , this.m_iDeskCard[this.m_iNowBigPeople] , sizeof(BYTE)*this.m_iBaseOutCount ) ; 
+                    // ::CopyMemory(&GameStation.iBaseCardList , this.m_iDeskCard[this.m_iNowBigPeople] , sizeof(BYTE)*this.m_iBaseOutCount ) ;
                     // ::CopyMemory(&GameStation.iDeskCardCount, this.m_iDeskCardCount, sizeof(GameStation.iDeskCardCount));
                     // ::CopyMemory(GameStation.iDeskCardList, this.m_iDeskCard, sizeof(GameStation.iDeskCardList));
                     GameStation.iLastCardCount = this.m_iLastCardCount;

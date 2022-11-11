@@ -30,19 +30,12 @@ export default class extends Base {
     eventDispatcher.socketioProxy = this;
   }
 
-  testAction(self){
-    console.log("testAction")
-  }
-
-  createRoomAction(self){
-    console.log("createRoomAction")
-  }
-
-  openAction(socket) {
+  openAction(self) {
   //  this.http.io.set('heartbeat timeout', 15000);
   //   var socket = self.http.socket;
-    console.log("open action")
+    console.log("connect action")
     //初始化socket
+    var socket = self.http.socket;
     socket.on("initSocket", function (uid, uname) {
       var checkResult = self.checkIfInRoom(uid);
       socket.emit("getip", socket.handshake.address.substr(7));
@@ -67,6 +60,7 @@ export default class extends Base {
         socket.emit("createFail", "您已经处于一个房间中了，请退出房间后再创建");
         return;
       }
+      socket.emit("startGame", "您已经处于一个房间中了，请退出房间后再创建");
       var maxRound = roomsetData.maxRound;
       var roundList = { 24: 12, 12: 6, 6: 4 };
       let userModel = think.model('user', think.config('db'), 'home');
@@ -86,21 +80,25 @@ export default class extends Base {
       roomInfo.addUser(roomUser);
       roomCount++;
     //  roomInfo.addBot();
+      console.log("createSucc")
 
+      console.log("connect succ,roomID:"+roomID)
       socket.join(roomID);    // 加入房间
       socket.emit("createSucc", roomID);
     });
     //加入房间
     socket.on("joinRoom", function (userData, roomId) {
+      console.log("joinRoom userData:"+userData)
+
       if (!roomList[roomId]) {
         socket.emit("joinFail", "房间不存在");
         return;
       }
       var checkResult = self.checkIfInRoom(userData.uid);
-      if (checkResult != null && checkResult.roomId != roomId) {
-        socket.emit("joinFail", "您已经处于一个房间中了，请退出房间后再加入");
-        return;
-      }
+      // if (checkResult != null && checkResult.roomId != roomId) {
+      //   socket.emit("joinFail", "您已经处于一个房间中了，请退出房间后再加入");
+      //   return;
+      // }
       var roomID = roomId;
       var isInRoom = false;
       var deskStation = -1;
@@ -479,5 +477,4 @@ export default class extends Base {
       }
     }
   }
-
 }

@@ -2,7 +2,7 @@
 
 import Base from './base.js';
 var crypto = require('crypto');
-
+require("babel-polyfill");
 export default class extends Base {
     init(http){
         super.init(http);

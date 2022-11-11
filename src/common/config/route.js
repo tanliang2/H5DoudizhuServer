@@ -23,6 +23,7 @@ export default [
   ["checkJoin","socketio/checkjoin"],
   ["checkjoincroom","socketio/checkjoincroom"],
   ["checkinroom","socketio/checkinroom"],
+  ["test", 'socketio/test'],
 
   [/^changelog/, 'index/changelog'],
   [/^doc(?:\/([\d\.\x]+))?\/search$/i, "doc/search?version=:1"],
